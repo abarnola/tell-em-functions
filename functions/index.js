@@ -1,13 +1,14 @@
 const functions = require('firebase-functions');
 const app = require('express')()
 
-const { 
+const {
     getAllTells, 
     postTell, 
     getTell, 
     postComment,
     likeTell,
-    unlikeTell 
+    unlikeTell,
+    deleteTell
 } = require('./handlers/tells')
 const { 
     signup,
@@ -24,6 +25,7 @@ app.post('/tell', FBAuth, postTell)
 app.get('/tell/:tellId', getTell)
 app.get('/tell/:tellId/like', FBAuth, likeTell)
 app.get('/tell/:tellId/unlike', FBAuth, unlikeTell)
+app.delete('/tell/:tellId/delete', FBAuth, deleteTell)
 //TODO: delete tell, like Tell, unlike Tell, comment on Tell
 app.post('/tell/:tellId/comment', FBAuth, postComment)
 

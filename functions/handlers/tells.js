@@ -74,6 +74,24 @@ exports.postTell = (req, res) => {
         })
 }
 
+//Delete a Tell
+exports.deleteTell = (req, res) => {
+    const document = db.doc(`/tells/${req.params.tellId}`)
+    document.get()
+        .then(doc => {
+            if(!doc.exists) return res.status(404).json({ error: 'Tell not found' })
+            if (doc.data().userName !== req.user.userName) return res.status(403).json({ error: 'Unauthorized' })
+            else return document.delete() 
+        })
+        .then(() => {
+            res.json({ message: 'Tell deleted successfully' })
+        })
+        .catch(err => {
+            console.error(err)
+            return res.status(500).json({ error: err.code })
+        })
+}
+
 // Comment on a tell
 exports.postComment = (req, res) => {
     if (req.body.body.trim() === '') return res.status(400).json({ error: 'Must not be empty' })
@@ -93,6 +111,9 @@ exports.postComment = (req, res) => {
     db.doc(`/tells/${newComment.tellId}`).get()
         .then(doc => {
             if (!doc.exists) return res.status(404).json({ error: 'Tell not found' })
+            return doc.ref.update({ commentCount: doc.data().commentCount + 1 })
+        })
+        .then(() => {
             return db.collection('comments').add(newComment)
         })
         .then(() => {
