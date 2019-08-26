@@ -19,6 +19,16 @@ let db = {
             likeCount: 5,
             commentCount: 2    
         }
+    ],
+    notifications: [
+        {
+            recipient: 'user',
+            sender: 'alebar',
+            read: 'true | false',
+            tellId: 'alkdsjk4hjh43',
+            type: 'like | comment',
+            dateCreated: '2019-03-15T11:46:01.018Z'
+        }
     ]
 }
 
