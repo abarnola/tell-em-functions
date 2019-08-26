@@ -95,7 +95,45 @@ exports.createNotificationOnComment = functions.firestore.document('comments/{id
 
 exports.onUserImageChange = functions.firestore.document('users/{userId}')
     .onUpdate((change) => {
-        let batch = db.batch()
-        return db.collection('tells')
-            .where('userName', '==', change.before.data().userName)
+        if(change.before.data().imageURL !== change.after.data().imageURL) {
+            var batch = db.batch()
+            return db.collection('tells')
+            .where('userName', '==', change.before.data().userName).get()
+            .then(data => {
+                data.forEach(doc => {
+                    const tell = db.document(`/tells/${doc.id}`)
+                    batch.update(tell, { userImage: change.after.data().imageURL })
+                })
+                return batch.commit()
+            })
+        } else return true
+    })
+
+exports.onTellDelete = functions.firestore
+    .document('/tells/{tellId}')
+    .onDelete((snapshot, context) => {
+        const tellId = context.params.tellId
+        const batch = db.batch()
+        return db.collection('comments').where('tellId', '==', tellId).get()
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`comments/${doc.id}`))
+                })
+                return db.collection('likes').where('tellId', '==', tellId)
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`likes/${doc.id}`))
+                })
+                return db.collection('notifications').where('tellId', '==', tellId)
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`notifications/${doc.id}`))
+                })
+                batch.commit()
+            })
+            .catch(err => {
+                console.error(err)
+            })
     })
