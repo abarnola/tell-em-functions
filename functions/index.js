@@ -72,7 +72,6 @@ exports.deleteNotificationOnUnlike = functions
         })
 })
 
-
 exports.createNotificationOnComment = functions.firestore.document('comments/{id}')
     .onCreate((snapshot) => {
         console.log('CreateNotificationOnComment!')
